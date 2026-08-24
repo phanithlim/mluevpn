@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Name=MLUEVPN
+GenericName=VPN Manager
+Comment=Connect to OpenConnect and OpenVPN 3 servers with saved credentials
+Exec=mluevpn
+Icon=network-vpn
+Terminal=false
+Categories=Network;Security;GTK;
+Keywords=VPN;OpenConnect;OpenVPN;GlobalProtect;
+StartupNotify=true
+StartupWMClass=dev.mlue.MlueVpn

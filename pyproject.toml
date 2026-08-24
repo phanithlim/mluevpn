@@ -1,0 +1,26 @@
+[project]
+name = "mluevpn"
+version = "0.1.0"
+description = "MLUEVPN - GTK4 VPN manager for OpenConnect and OpenVPN 3 with encrypted credential storage"
+requires-python = ">=3.11"
+dependencies = [
+    "pexpect>=4.9",
+    "cryptography>=42",
+    "keyring>=25",
+]
+
+[project.scripts]
+mluevpn = "mluevpn.__main__:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/mluevpn"]
+
+[tool.uv]
+# PyGObject (gi) must come from the system packages (pacman -S python-gobject
+# libadwaita). Building it from PyPI needs gobject-introspection dev headers and
+# takes minutes, so the venv is created against /usr/bin/python3 with
+# --system-site-packages instead. See README.

@@ -1,0 +1,32 @@
+/* Status badge on each VPN row. The colour comes from libadwaita's own
+   .success / .error / .warning / .accent classes, so it tracks the user's
+   theme and accent choice; this rule only supplies the shape. */
+.status-pill {
+  font-size: 0.82em;
+  font-weight: bold;
+  padding: 2px 10px;
+  margin-right: 4px;
+  border-radius: 99px;
+  background-color: alpha(currentColor, 0.15);
+}
+
+.status-pill.dimmed {
+  background-color: alpha(currentColor, 0.08);
+}
+
+/* Elapsed-time counter next to the badge. Tabular figures stop the row from
+   twitching as the seconds tick over. */
+.duration {
+  font-feature-settings: "tnum";
+  font-size: 0.82em;
+  opacity: 0.7;
+  margin-right: 4px;
+}
+
+.log-view {
+  font-size: 0.88em;
+}
+
+.log-header {
+  padding: 6px 6px 6px 12px;
+}
