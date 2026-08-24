@@ -14,21 +14,24 @@ yay -S openvpn3-git                      # AUR-only
 
 ```bash
 uv venv --python /usr/bin/python3 --system-site-packages
-uv pip install -e .
-uv run mluevpn
+uv sync
+uv run poe app
 ```
 
 ## Build and install
 
 ```bash
 sudo pacman -S --needed base-devel
-./packaging/build.sh -si                 # -s pulls build deps, -i installs
+uv run poe install                       # build the pacman package + install it
 ```
+
+Other tasks: `poe build` (build only), `poe wheel` (Python wheel into `dist/`),
+`poe clean`. All defined in `pyproject.toml`.
 
 ## Give it to someone else
 
 ```bash
-./packaging/build.sh                                          # you
+uv run poe build                                              # you
 scp packaging/mluevpn-*.pkg.tar.zst them@their-box:~/
 
 sudo pacman -U ~/mluevpn-*.pkg.tar.zst                        # them
@@ -39,7 +42,8 @@ yay -S openvpn3-git
 
 - The two `uv venv` flags are required. Without them `uv` uses its own Python,
   which can't see the system `gi` module → `ModuleNotFoundError: gi`.
-- Never run `build.sh` with sudo, and deactivate your venv first.
+- Never run the build with sudo, and deactivate your venv first — makepkg
+  refuses to run as root.
 - Shipping an update: bump `version` in `pyproject.toml` **and** `pkgver` in
   `packaging/PKGBUILD`.
 - Never share `~/.local/share/mluevpn/mluevpn.db`, `master.key`, or `.ovpn`

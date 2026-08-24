@@ -14,15 +14,38 @@ gobject-introspection headers and takes minutes. A plain `uv venv` uses uv's
 own downloaded interpreter, which cannot see the system `gi` module, and the
 app dies with `ModuleNotFoundError: gi`.
 
-`uv pip install -e .` is an editable install: edits under `src/mluevpn/` take
-effect on the next start. A source run and an installed package coexist — both
-read the same `~/.local/share/mluevpn` database.
+`uv sync` installs the project editable plus the `dev` dependency group, so
+edits under `src/mluevpn/` take effect on the next start. A source run and an
+installed package coexist — both read the same `~/.local/share/mluevpn`
+database.
+
+Create the venv with those flags *before* the first `uv sync`. uv reuses an
+existing `.venv` but creates a fresh one without `--system-site-packages`, and
+that one cannot see `gi`.
 
 ```bash
 source .venv/bin/activate && mluevpn     # activated shell
 uv run python -m mluevpn                 # explicit module
 tail -f ~/.local/state/mluevpn/mluevpn.log
 ```
+
+## Tasks
+
+uv has no task runner, so [poethepoet](https://poethepoet.natn.io/) provides
+one from `pyproject.toml`. It is in the `dev` dependency group — the wheel and
+the Arch package never see it.
+
+| Task | Runs |
+| --- | --- |
+| `uv run poe app` | `python -m mluevpn` |
+| `uv run poe build` | `./packaging/build.sh` |
+| `uv run poe install` | `./packaging/build.sh -si` |
+| `uv run poe wheel` | `uv build` → `dist/` |
+| `uv run poe clean` | removes `dist/`, makepkg scratch dirs, staged tarball |
+
+Arguments pass through, so `uv run poe build -s` reaches makepkg. The scripts
+still work directly (`./packaging/build.sh -si`) — poe is a shortcut, not a
+wrapper that hides anything.
 
 ## Why the build must not see a virtualenv
 

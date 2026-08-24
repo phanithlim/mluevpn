@@ -12,6 +12,27 @@ dependencies = [
 [project.scripts]
 mluevpn = "mluevpn.__main__:main"
 
+# Development-only; not part of what the app needs at runtime and not seen by
+# the Arch package, which installs the wheel and nothing else.
+[dependency-groups]
+dev = ["poethepoet>=0.29"]
+
+# Named commands, since uv has no task runner of its own:
+#
+#   uv run poe app        run from source
+#   uv run poe build      build the pacman package
+#   uv run poe install    build it and install it (asks for sudo)
+#   uv run poe wheel      Python wheel into dist/ (not used for distribution)
+#   uv run poe clean      drop every build artefact
+#
+# Extra arguments pass through: `uv run poe build -s` reaches makepkg.
+[tool.poe.tasks]
+app = "python -m mluevpn"
+build = "./packaging/build.sh"
+install = "./packaging/build.sh -si"
+wheel = "uv build"
+clean = "rm -rf dist packaging/src packaging/pkg packaging/mluevpn-*.tar.gz"
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
