@@ -28,8 +28,8 @@ optdepends=(
 )
 makedepends=('python-build' 'python-installer' 'python-wheel' 'python-hatchling')
 
-source=("$pkgname-$pkgver.tar.gz")
-sha256sums=('SKIP')
+source=("$pkgname-$pkgver.tar.gz::$url/archive/refs/tags/v$pkgver.tar.gz")
+sha256sums=('e1b96bea4dc6f9379878d58f5ed2e20e30926b6f0c56ec539f2f095c3b4555de')
 
 build() {
   cd "$srcdir/$pkgname-$pkgver"

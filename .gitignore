@@ -54,3 +54,7 @@ htmlcov/
 # --------------------------------------------------------------- OS cruft
 .DS_Store
 Thumbs.db
+
+# makepkg scratch dirs under the AUR recipe
+packaging/aur/src/
+packaging/aur/pkg/
