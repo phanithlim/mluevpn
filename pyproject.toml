@@ -1,6 +1,6 @@
 [project]
 name = "mluevpn"
-version = "0.1.0"
+version = "0.1.1"
 description = "MLUEVPN - GTK4 VPN manager for OpenConnect and OpenVPN 3 with encrypted credential storage"
 requires-python = ">=3.11"
 dependencies = [
@@ -31,7 +31,7 @@ app = "python -m mluevpn"
 build = "./packaging/build.sh"
 install = "./packaging/build.sh -si"
 wheel = "uv build"
-clean = "rm -rf dist packaging/src packaging/pkg packaging/mluevpn-*.tar.gz"
+clean = "rm -rf dist packaging/src packaging/pkg packaging/mluevpn-*.tar.gz packaging/mluevpn-*.pkg.tar.zst"
 
 [build-system]
 requires = ["hatchling"]

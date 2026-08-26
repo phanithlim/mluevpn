@@ -1,21 +1,27 @@
-"""Filesystem locations used by myvpn."""
+"""Filesystem locations used by MLUEVPN.
+
+Directory and file names follow the distribution name from pyproject.toml, so a
+rename there carries through instead of leaving stale paths behind.
+"""
 
 from __future__ import annotations
 
 import os
 from pathlib import Path
 
+from . import PACKAGE_NAME
+
 
 def _xdg(var: str, default: str) -> Path:
     return Path(os.environ.get(var) or Path.home() / default)
 
 
-DATA_DIR = _xdg("XDG_DATA_HOME", ".local/share") / "mluevpn"
-STATE_DIR = _xdg("XDG_STATE_HOME", ".local/state") / "mluevpn"
+DATA_DIR = _xdg("XDG_DATA_HOME", ".local/share") / PACKAGE_NAME
+STATE_DIR = _xdg("XDG_STATE_HOME", ".local/state") / PACKAGE_NAME
 
-DB_PATH = DATA_DIR / "mluevpn.db"
+DB_PATH = DATA_DIR / f"{PACKAGE_NAME}.db"
 KEY_FALLBACK_PATH = DATA_DIR / "master.key"
-LOG_PATH = STATE_DIR / "mluevpn.log"
+LOG_PATH = STATE_DIR / f"{PACKAGE_NAME}.log"
 
 
 def ensure_dirs() -> None:

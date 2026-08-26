@@ -15,11 +15,12 @@ from dataclasses import dataclass
 
 from cryptography.fernet import Fernet, InvalidToken
 
+from . import PACKAGE_NAME
 from .config import KEY_FALLBACK_PATH, ensure_dirs
 
 log = logging.getLogger(__name__)
 
-KEYRING_SERVICE = "mluevpn"
+KEYRING_SERVICE = PACKAGE_NAME
 KEYRING_USER = "master-key"
 
 

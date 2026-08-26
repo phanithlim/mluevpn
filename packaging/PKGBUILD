@@ -1,6 +1,6 @@
 # Maintainer: mlue <phanithlim2002@gmail.com>
 pkgname=mluevpn
-pkgver=0.1.0
+pkgver=0.1.1
 pkgrel=1
 pkgdesc="GTK4 VPN manager for OpenConnect and OpenVPN 3 with encrypted credential storage"
 arch=('any')

@@ -10,7 +10,27 @@ set -euo pipefail
 here=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 root=$(dirname "$here")
 name=$(sed -n 's/^pkgname=//p' "$here/PKGBUILD")
-ver=$(sed -n 's/^pkgver=//p' "$here/PKGBUILD")
+
+# pyproject.toml is the single source of truth for the version. The PKGBUILD
+# still carries a literal pkgver -- it has to stand on its own for the AUR --
+# so sync it here rather than making it parse anything at build time.
+ver=$(sed -n '/^\[project\]/,/^\[/{s/^version[[:space:]]*=[[:space:]]*"\([^"]*\)".*/\1/p}' \
+        "$root/pyproject.toml")
+if [[ -z "$ver" ]]; then
+  echo "error: no version found in $root/pyproject.toml" >&2
+  exit 1
+fi
+# pkgver forbids hyphens, so a PEP 440 pre-release like 0.2.0-rc1 becomes 0.2.0_rc1.
+ver=${ver//-/_}
+
+cur=$(sed -n 's/^pkgver=//p' "$here/PKGBUILD")
+if [[ "$cur" != "$ver" ]]; then
+  echo "version: $cur -> $ver (from pyproject.toml)"
+  sed -i "s/^pkgver=.*/pkgver=$ver/" "$here/PKGBUILD"
+  # A new upstream version restarts the package revision, per Arch convention.
+  sed -i "s/^pkgrel=.*/pkgrel=1/" "$here/PKGBUILD"
+fi
+rel=$(sed -n 's/^pkgrel=//p' "$here/PKGBUILD")
 
 stage=$(mktemp -d)
 trap 'rm -rf "$stage"' EXIT
@@ -52,4 +72,4 @@ fi
 env -u VIRTUAL_ENV makepkg --force --cleanbuild "$@"
 
 echo
-echo "built: $(ls -1 "$here"/*.pkg.tar.zst | tail -1)"
+echo "built: $(ls -1t "$here/$name-$ver-$rel-"*.pkg.tar.zst | head -1)"

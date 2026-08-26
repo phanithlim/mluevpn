@@ -21,6 +21,7 @@ from typing import Any
 
 import pexpect
 
+from .. import PACKAGE_NAME
 from .base import Backend, ConnectionError_, State
 
 P_USER = 0
@@ -55,7 +56,7 @@ class OpenVpn3Backend(Backend):
     def config_name(self) -> str:
         """Namespaced name so we never disturb a hand-imported config."""
         safe = re.sub(r"[^A-Za-z0-9._-]+", "-", self.profile.name).strip("-")
-        return f"mluevpn-{safe or self.profile.id}"
+        return f"{PACKAGE_NAME}-{safe or self.profile.id}"
 
     # ------------------------------------------------------------------ setup
 
@@ -92,7 +93,7 @@ class OpenVpn3Backend(Backend):
     def _config_is_stale(self, path: Path) -> bool:
         """True when the .ovpn file is newer than our last import of it."""
         marker = Path(os.environ.get("XDG_STATE_HOME") or Path.home() / ".local/state")
-        marker = marker / "mluevpn" / f"{self.config_name}.imported"
+        marker = marker / PACKAGE_NAME / f"{self.config_name}.imported"
         try:
             return path.stat().st_mtime > marker.stat().st_mtime
         except FileNotFoundError:
@@ -100,7 +101,7 @@ class OpenVpn3Backend(Backend):
 
     def _mark_imported(self) -> None:
         marker = Path(os.environ.get("XDG_STATE_HOME") or Path.home() / ".local/state")
-        marker = marker / "mluevpn"
+        marker = marker / PACKAGE_NAME
         marker.mkdir(parents=True, exist_ok=True)
         (marker / f"{self.config_name}.imported").touch()
 

@@ -603,14 +603,13 @@ class MainWindow(Adw.ApplicationWindow):
         alert.present(self)
 
     def _on_about(self) -> None:
-        from .. import __version__
+        from .. import DESCRIPTION, __version__
 
         about = Adw.AboutDialog(
             application_name=APP_NAME,
             application_icon="network-vpn-symbolic",
             version=__version__,
-            comments="A front-end for OpenConnect and OpenVPN 3 with "
-                     "encrypted credential storage.",
+            comments=DESCRIPTION,
             license_type=Gtk.License.MIT_X11,
         )
         about.add_credit_section("Backends", ["openconnect", "openvpn3"])
