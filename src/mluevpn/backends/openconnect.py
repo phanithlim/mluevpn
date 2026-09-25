@@ -49,7 +49,11 @@ PATTERNS = [
     r"[Uu]sername:\s*$",
     r"[Pp]assword:\s*$",
     r"GATEWAY:.*\]:",
-    r"(Connected as [^\r\n]+|ESP session established|Connected \S+ as )",
+    # openconnect >= 9 announces the tunnel with "Configured as <ip>, with SSL
+    # connected and DTLS ..."; older builds said "Connected as <ip>". Match both,
+    # or the tunnel comes up and we sit in AUTHENTICATING until the timeout.
+    r"(Configured as [^\r\n]+|Connected as [^\r\n]+|"
+    r"ESP session established|Connected \S+ as )",
     r"(Login failed|Authentication failed|failed to obtain|"
     r"Failed to complete authentication|Permission denied)",
     pexpect.EOF,
@@ -57,6 +61,13 @@ PATTERNS = [
 ]
 
 PIN_RE = re.compile(r"(pin-sha256:[A-Za-z0-9+/=]+)")
+
+# openconnect rejects the connection itself when --servercert does not match,
+# and the only symptom further down the stream is a generic authentication
+# failure -- which would otherwise send the user after their password.
+MISMATCH_RE = re.compile(
+    r"None of the \d+ fingerprint\(s\) specified via --servercert match"
+)
 
 AUTH_TIMEOUT = 120
 
@@ -73,6 +84,8 @@ class OpenConnectBackend(Backend):
         super().__init__(*args, **kwargs)
         # Called with the pin string when we learn the server's fingerprint.
         self._on_servercert = on_servercert
+        # Set when the server presents a certificate we did not pin.
+        self._cert_mismatch = False
         self._child: pexpect.spawn | None = None
         self._vpn_pid: int | None = None
 
@@ -185,6 +198,13 @@ class OpenConnectBackend(Backend):
 
             elif index == P_FAILED:
                 self._log_buffer(child.after)
+                if self._cert_mismatch:
+                    raise ConnectionError_(
+                        "The server's certificate has changed since it was "
+                        "pinned for this profile. If the server was legitimately "
+                        "reissued, use \u201cForget server certificate\u201d in the "
+                        "profile menu and reconnect to trust the new one."
+                    )
                 raise ConnectionError_(
                     "Authentication was rejected by the server. Check the "
                     "username and password saved for this profile."
@@ -292,6 +312,8 @@ class OpenConnectBackend(Backend):
     def _log_buffer(self, text: str | None) -> None:
         if not text:
             return
+        if MISMATCH_RE.search(text):
+            self._cert_mismatch = True
         # Belt and braces: a stored password should never reach the log, even
         # if a future openconnect echoes what it was given.
         for secret in (self.creds.password, self.creds.sudo_password):

@@ -104,6 +104,9 @@ class ProfileRow(Adw.ActionRow):
         menu = Gio.Menu()
         menu.append("Edit…", f"win.edit({profile.id})")
         menu.append("Forget saved credentials", f"win.forget({profile.id})")
+        menu.append(
+            "Forget server certificate", f"win.forgetcert({profile.id})"
+        )
         menu.append("Delete", f"win.delete({profile.id})")
         self.add_suffix(
             Gtk.MenuButton(
@@ -372,6 +375,7 @@ class MainWindow(Adw.ApplicationWindow):
             "edit": lambda pid: self.edit_profile(self.store.get_profile(pid)),
             "delete": self._on_delete,
             "forget": self._on_forget,
+            "forgetcert": self._on_forget_cert,
         }
         for name, handler in targeted.items():
             action = Gio.SimpleAction.new(name, GLib.VariantType.new("i"))
@@ -548,6 +552,16 @@ class MainWindow(Adw.ApplicationWindow):
     def _on_forget(self, profile_id: int) -> None:
         self.store.clear_secrets(profile_id)
         self.toast("Saved credentials cleared for this profile")
+
+    def _on_forget_cert(self, profile_id: int) -> None:
+        """Drop only the pinned fingerprint, keeping username and password.
+
+        Needed when the server's certificate is legitimately reissued: the
+        stored pin no longer matches and every connection is refused until it
+        is re-learned on the next connect.
+        """
+        self.store.set_secret(profile_id, db.CRED_SERVERCERT, None)
+        self.toast("Server certificate forgotten — it re-pins on next connect")
 
     # --------------------------------------------------------------- settings
 
