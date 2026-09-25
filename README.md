@@ -88,6 +88,10 @@ pacman -Q mluevpn
 
 Close and reopen the app afterwards — a running copy keeps the old code.
 
+That covers a local install. To publish a release to GitHub and the AUR, follow
+[docs/releasing.md](docs/releasing.md) — the order of the tag, `updpkgsums` and
+`.SRCINFO` steps matters.
+
 ## Troubleshooting
 
 - **`ModuleNotFoundError: gi`** — the venv was made without the two flags.
