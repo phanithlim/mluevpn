@@ -58,3 +58,8 @@ Thumbs.db
 # makepkg scratch dirs under the AUR recipe
 packaging/aur/src/
 packaging/aur/pkg/
+
+# Local clone of the AUR package repo (ssh://aur@aur.archlinux.org/mluevpn.git).
+# A separate git repo that lives here for convenience; committing it would add a
+# gitlink to a commit no one outside the AUR remote can fetch.
+aur-mluevpn/
